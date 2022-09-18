@@ -23,7 +23,7 @@ function App() {
       },
       {
         name: "Political Theory 101",
-        url: "https://cors-anywhere.herokuapp.com/https://feeds.soundcloud.com/users/soundcloud:users:607750389/sounds.rss",
+        url: "https://feeds.soundcloud.com/users/soundcloud:users:607750389/sounds.rss",
       },
     ],
   });
