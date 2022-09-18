@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/grepkast/static/css/main.b71485c1.css",
-    "main.js": "/grepkast/static/js/main.0ed88c59.js",
+    "main.js": "/grepkast/static/js/main.ad202609.js",
     "static/js/787.085b5fa1.chunk.js": "/grepkast/static/js/787.085b5fa1.chunk.js",
     "index.html": "/grepkast/index.html",
     "main.b71485c1.css.map": "/grepkast/static/css/main.b71485c1.css.map",
-    "main.0ed88c59.js.map": "/grepkast/static/js/main.0ed88c59.js.map",
+    "main.ad202609.js.map": "/grepkast/static/js/main.ad202609.js.map",
     "787.085b5fa1.chunk.js.map": "/grepkast/static/js/787.085b5fa1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b71485c1.css",
-    "static/js/main.0ed88c59.js"
+    "static/js/main.ad202609.js"
   ]
 }
