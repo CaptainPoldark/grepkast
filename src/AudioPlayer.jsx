@@ -126,7 +126,6 @@ const AudioPlayer = ({ episodes, metaData }) => {
         setRemainingTime(
           new Date(episodeProgress * 1000).toISOString().slice(11, -5)
         );
-        console.log(remainingTime);
         setEpisodeProgress(
           persistProgress[persistProgressIndex].episodeProgress
         );
@@ -252,7 +251,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
             style={{ background: trackStyling }}
           />
           <div className="runtime-display">
-            <p>{remaining ? remaining: ""}</p>
+            <p>{remaining ? remaining : ""}</p>
             <p>{runTime}</p>
           </div>
           <AudioControls
