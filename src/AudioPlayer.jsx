@@ -6,7 +6,6 @@ import Modal from "react-bootstrap/Modal";
 import Offcanvas from "react-bootstrap/Offcanvas";
 
 const AudioPlayer = ({ episodes, metaData }) => {
-
   const [episodeIndex, setEpisodeIndex] = useState(0);
   const [episodeProgress, setEpisodeProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -37,7 +36,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
 
     return temp;
   };
-  const currentPercentage = duration ? `${converToPercentage}%` : "0%";
+  const currentPercentage = duration ? `${converToPercentage()}%` : "0%";
 
   const cleanCurrentPercentage = duration ? converToPercentage().toString() : 0;
 
@@ -58,8 +57,6 @@ const AudioPlayer = ({ episodes, metaData }) => {
       return object.sourceAudio === sourceAudio;
     });
 
-    setPersistProgressIndex(index);
-
     if (index == -1) {
       setPersistProgress([
         ...persistProgress,
@@ -75,6 +72,8 @@ const AudioPlayer = ({ episodes, metaData }) => {
       ]);
     }
 
+    setPersistProgressIndex(index);
+
     return index;
   }
 
@@ -84,9 +83,11 @@ const AudioPlayer = ({ episodes, metaData }) => {
     if (episodeIndex - 1 < 0) {
       setEpisodeIndex(episodes.length - 1);
       setEpisodeProgress(0);
+      setIsPlaying(true);
     } else {
       setEpisodeIndex(episodeIndex - 1);
       setEpisodeProgress(0);
+      setIsPlaying(true);
     }
   };
 
@@ -111,14 +112,21 @@ const AudioPlayer = ({ episodes, metaData }) => {
         setIsPlaying(false);
       } else {
         const tempUpdatedPersist = persistProgress;
-        findPersistIndex();
         tempUpdatedPersist[persistProgressIndex].episodeProgress =
           audioRef.current.currentTime;
-        tempUpdatedPersist[persistProgressIndex].currentPercentage =
+        tempUpdatedPersist[persistProgressIndex].cleanCurrentPercentage =
           cleanCurrentPercentage;
+        tempUpdatedPersist[persistProgressIndex].currentPercentage =
+          currentPercentage;
         setPersistProgress(tempUpdatedPersist);
 
-        setRemainingTime(remaining);
+        const playProgress = new Date(episodeProgress * 1000)
+          .toISOString()
+          .slice(11, -5);
+        setRemainingTime(
+          new Date(episodeProgress * 1000).toISOString().slice(11, -5)
+        );
+        console.log(remainingTime);
         setEpisodeProgress(
           persistProgress[persistProgressIndex].episodeProgress
         );
@@ -156,10 +164,6 @@ const AudioPlayer = ({ episodes, metaData }) => {
           .slice(11, 19)
       : "";
 
-    const tempRunTime = duration
-      ? new Date(duration * 1000).toISOString().slice(11, -5)
-      : "Ready";
-
     setRemainingTime(trackUpdateRemaining);
     setRunTime(tempRunTime);
     setEpisodeProgress(0);
@@ -182,15 +186,16 @@ const AudioPlayer = ({ episodes, metaData }) => {
 
       startTimer();
     } else {
+      clearInterval(intervalRef.current);
       audioRef.current.pause();
     }
-  });
+  }, [isPlaying]);
 
   useEffect(() => {
     return () => {
       clearInterval(intervalRef.current);
     };
-  });
+  }, [1000]);
 
   useEffect(() => {
     audioRef.current.playbackRate = playbackRate;
@@ -247,7 +252,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
             style={{ background: trackStyling }}
           />
           <div className="runtime-display">
-            <p>{remainingTime ? remainingTime : ""}</p>
+            <p>{remaining ? remaining: ""}</p>
             <p>{runTime}</p>
           </div>
           <AudioControls
@@ -282,7 +287,12 @@ const AudioPlayer = ({ episodes, metaData }) => {
             </Modal.Header>
             <Modal.Body>
               {persistProgress.map(
-                ({ channelTitle, title, episodeProgress, currentPercentage }) =>
+                ({
+                  channelTitle,
+                  title,
+                  episodeProgress,
+                  cleanCurrentPercentage,
+                }) =>
                   episodeProgress > 0 ? (
                     <div>
                       <p>
@@ -290,9 +300,9 @@ const AudioPlayer = ({ episodes, metaData }) => {
                         {new Date(episodeProgress * 1000)
                           .toISOString()
                           .slice(11, -5)}{" "}
-                        {currentPercentage < 10
-                          ? currentPercentage.slice(0, 3)
-                          : currentPercentage.slice(0, 4)}
+                        {cleanCurrentPercentage < 10
+                          ? cleanCurrentPercentage.toString().slice(0, 3)
+                          : cleanCurrentPercentage.toString().slice(0, 4)}
                         %
                       </p>
                     </div>
