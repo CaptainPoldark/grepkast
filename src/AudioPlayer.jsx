@@ -12,7 +12,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
   const [remainingTime, setRemainingTime] = useState(0);
   const [runTime, setRunTime] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [persistProgressIndex, setPersistProgressIndex] = useState(Number);
+  const [persistProgressIndex, setPersistProgressIndex] = useState();
   const [persistProgress, setPersistProgress] = useState([]);
   const [showHistory, setShowhistory] = useState(false);
   const [showAboutEpisode, setShowAboutEpisode] = useState(false);
@@ -32,14 +32,16 @@ const AudioPlayer = ({ episodes, metaData }) => {
   const { duration } = audioRef.current;
 
   const converToPercentage = () => {
-    let temp = (episodeProgress / duration) * 100;
+    let temp =
+      (persistProgress[persistProgressIndex].episodeProgress /
+        audioRef.current.duration) *
+      100;
 
     return temp;
   };
   const currentPercentage = duration ? `${converToPercentage()}%` : "0%";
 
   const cleanCurrentPercentage = duration ? converToPercentage().toString() : 0;
-
   const remaining = duration
     ? new Date((duration - episodeProgress) * 1000).toISOString().slice(11, 19)
     : "";
@@ -57,22 +59,9 @@ const AudioPlayer = ({ episodes, metaData }) => {
       return object.sourceAudio === sourceAudio;
     });
 
-    if (index == -1) {
-      setPersistProgress([
-        ...persistProgress,
-        {
-          title,
-          channelTitle,
-          channelImage,
-          episodeImage,
-          sourceAudio,
-          episodeProgress: 0,
-          cleanCurrentPercentage,
-        },
-      ]);
+    if (index != -1 || index != undefined) {
+      setPersistProgressIndex(index);
     }
-
-    setPersistProgressIndex(index);
 
     return index;
   }
@@ -111,6 +100,24 @@ const AudioPlayer = ({ episodes, metaData }) => {
       if (audioRef.current.ended) {
         setIsPlaying(false);
       } else {
+        const converToPercentage = () => {
+          let temp =
+            (persistProgress[persistProgressIndex].episodeProgress /
+              audioRef.current.duration) *
+            100;
+
+          return temp;
+        };
+        const currentPercentage = duration ? `${converToPercentage()}%` : "0%";
+
+        const cleanCurrentPercentage = audioRef.current.duration
+          ? converToPercentage().toString()
+          : 0;
+        const remaining = duration
+          ? new Date((duration - episodeProgress) * 1000)
+              .toISOString()
+              .slice(11, 19)
+          : "";
         const tempUpdatedPersist = persistProgress;
         tempUpdatedPersist[persistProgressIndex].episodeProgress =
           audioRef.current.currentTime;
@@ -126,6 +133,8 @@ const AudioPlayer = ({ episodes, metaData }) => {
         setRemainingTime(
           new Date(episodeProgress * 1000).toISOString().slice(11, -5)
         );
+        const tempCleanPercentage = cleanCurrentPercentage;
+        console.log(currentPercentage);
         setEpisodeProgress(
           persistProgress[persistProgressIndex].episodeProgress
         );
@@ -166,17 +175,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
     setRemainingTime(trackUpdateRemaining);
     setRunTime(tempRunTime);
     setEpisodeProgress(0);
-  }, [duration]);
-
-  useEffect(() => {
-    const checkIndex = findPersistIndex();
-
-    if (checkIndex != -1 && checkIndex != undefined) {
-      setPersistProgressIndex(checkIndex);
-      audioRef.current.currentTime =
-        persistProgress[checkIndex].episodeProgress;
-    }
-  }, [episodeIndex, audioRef.current]);
+  }, [audioRef.current]);
 
   useEffect(() => {
     setRunTime(tempRunTime);
@@ -205,7 +204,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
     audioRef.current = new Audio(sourceAudio);
     setPlaybackRate(1);
 
-    const checkIndex = findPersistIndex();
+    let checkIndex = findPersistIndex();
 
     if (checkIndex != -1 && checkIndex != undefined) {
       setPersistProgressIndex(checkIndex);
@@ -213,10 +212,24 @@ const AudioPlayer = ({ episodes, metaData }) => {
         persistProgress[checkIndex].episodeProgress;
       setRunTime(tempRunTime);
     }
+    if (checkIndex == -1) {
+      setPersistProgress([
+        ...persistProgress,
+        {
+          title,
+          channelTitle,
+          channelImage,
+          episodeImage,
+          sourceAudio,
+          episodeProgress: 0,
+          cleanCurrentPercentage,
+          currentPercentage,
+        },
+      ]);
+      checkIndex = findPersistIndex();
+    }
 
-    findPersistIndex();
-
-    if (isReady.current) {
+    if (isReady.current && persistProgress.length > 0) {
       audioRef.current.pause();
       setIsPlaying(false);
 
@@ -224,7 +237,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
     } else {
       isReady.current = true;
     }
-  }, [episodeIndex, episodes]);
+  }, [audioRef.current, episodes, episodeIndex]);
 
   return (
     <div className="podcast-player">
