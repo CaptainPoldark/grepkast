@@ -118,6 +118,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
               .toISOString()
               .slice(11, 19)
           : "";
+
         const tempUpdatedPersist = persistProgress;
         tempUpdatedPersist[persistProgressIndex].episodeProgress =
           audioRef.current.currentTime;
@@ -134,7 +135,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
           new Date(episodeProgress * 1000).toISOString().slice(11, -5)
         );
         const tempCleanPercentage = cleanCurrentPercentage;
-        console.log(currentPercentage);
+
         setEpisodeProgress(
           persistProgress[persistProgressIndex].episodeProgress
         );
@@ -265,7 +266,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
           />
           <div className="runtime-display">
             <p>{remaining ? remaining : ""}</p>
-            <p>{runTime}</p>
+            <p>{tempRunTime}</p>
           </div>
           <AudioControls
             isPlaying={isPlaying}
@@ -274,6 +275,7 @@ const AudioPlayer = ({ episodes, metaData }) => {
             onPlayPauseClick={setIsPlaying}
             showNextButton={episodeIndex != 0}
             changeSpeed={setPlaybackRate}
+            isReady={!true}
           />
         </div>
         <div className="podcast-history-modal">

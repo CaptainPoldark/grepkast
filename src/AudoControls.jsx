@@ -15,6 +15,7 @@ const AudioControls = ({
   onNextClick,
   showNextButton,
   changeSpeed,
+  isReady,
 }) => (
   <div className="audio-controls">
     <button
@@ -40,6 +41,7 @@ const AudioControls = ({
         className="play"
         onClick={() => onPlayPauseClick(true)}
         aria-label="Play"
+        disabled={isReady}
       >
         <Play />
       </button>
